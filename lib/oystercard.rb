@@ -1,5 +1,5 @@
 class Oystercard
-  attr_reader :balance, :entry_station, :exit_station, :journey_history
+  attr_reader :balance, :entry_station, :journey_history
   MAX_BALANCE = 90
   MIN_BALANCE = 1
 
@@ -9,7 +9,7 @@ class Oystercard
   end
 
   def top_up(amount)
-    fail "Maximum balance of #{MAX_BALANCE} exceeded" if @balance + amount > MAX_BALANCE
+    fail "Maximum balance of #{MAX_BALANCE} exceeded" if max(amount)
     @balance += amount
   end
 
@@ -22,15 +22,18 @@ class Oystercard
     @entry_station = station
   end
 
-  def touch_out(station)
+  def touch_out(exit_station)
     deduct(MIN_BALANCE)
-    @exit_station = station
-    @journey_history << {entry_station: @entry_station, exit_station: @exit_station}
+    @journey_history << {entry_station: @entry_station, exit_station: exit_station}
     @entry_station = nil
   end
 
   private
   def deduct(amount)
     @balance -= amount
+  end
+
+  def max(amount)
+    @balance + amount > MAX_BALANCE
   end
 end

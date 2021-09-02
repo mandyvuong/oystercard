@@ -52,20 +52,13 @@ describe Oystercard do
       subject.top_up(10)
       subject.touch_in(entry_station)
       subject.touch_out(exit_station)
-      expect(subject).not_to be_in_journey # false alternative: expect(subject.in_journey?).to be false
+      expect(subject).not_to be_in_journey
     end
     
     it 'reduce the balance by minimum fare' do
       subject.top_up(10)
       subject.touch_in(entry_station)
       expect { subject.touch_out(exit_station) }.to change {subject.balance}.by (-Oystercard::MIN_BALANCE) 
-    end
-
-    it 'stores exit station' do
-      subject.top_up(10)
-      subject.touch_in(entry_station)
-      subject.touch_out(exit_station)
-      expect(subject.exit_station).to eq exit_station
     end
   end 
 
