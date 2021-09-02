@@ -27,38 +27,57 @@ describe Oystercard do
     end
   end
 
-  let(:station){ double :station }
+  let(:entry_station) { double :station }
+  let(:exit_station) { double :station }
   describe '#touch_in' do
     it 'can touch in' do
       subject.top_up(10)
-      subject.touch_in(station)
+      subject.touch_in(entry_station)
       expect(subject).to be_in_journey # true, alternative: expect(subject.in_journey?).to be true 
     end
     
     it 'raises error if below minimum balance' do
-      expect{ subject.touch_in(station) }.to raise_error "Insufficient balance"
+      expect{ subject.touch_in(entry_station) }.to raise_error "Insufficient balance"
     end
 
     it 'records journey' do
       subject.top_up(10)
-      subject.touch_in(station)
-      expect(subject.entry_station).to eq (station) 
+      subject.touch_in(entry_station)
+      expect(subject.entry_station).to eq entry_station
     end
   end
 
   describe '#touch_out' do
     it 'can touch out' do
       subject.top_up(10)
-      subject.touch_in(station)
-      subject.touch_out
+      subject.touch_in(entry_station)
+      subject.touch_out(exit_station)
       expect(subject).not_to be_in_journey # false alternative: expect(subject.in_journey?).to be false
     end
     
     it 'reduce the balance by minimum fare' do
       subject.top_up(10)
-      subject.touch_in(station)
-      expect { subject.touch_out }.to change {subject.balance}.by (-Oystercard::MIN_BALANCE) 
+      subject.touch_in(entry_station)
+      expect { subject.touch_out(exit_station) }.to change {subject.balance}.by (-Oystercard::MIN_BALANCE) 
     end
+
+    it 'stores exit station' do
+      subject.top_up(10)
+      subject.touch_in(entry_station)
+      subject.touch_out(exit_station)
+      expect(subject.exit_station).to eq exit_station
+    end
+  end 
+
+  it 'has an empty list of journeys by default' do
+    expect(subject.journey_history).to eq []
+  end
+
+  it 'stores a journey' do
+    subject.top_up(10)
+    subject.touch_in(entry_station)
+    subject.touch_out(exit_station)
+    expect(subject.journey_history).to include ( {entry_station: entry_station, exit_station: exit_station} )
   end
 end
 
